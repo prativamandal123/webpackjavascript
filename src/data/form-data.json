@@ -1,0 +1,30 @@
+[
+  {
+    "type": "autocomplete",
+    "required": false,
+    "label": "Autocomplete",
+    "helpText": "Enter your search term",
+    "placeholder": "Type to search...",
+    "className": "form-control",
+    "name": "autocomplete-1748848716518-0",
+    "access": false,
+    "requireValidOption": false,
+    "values": [
+      {
+        "label": "Option 1",
+        "value": "option-1",
+        "selected": true
+      },
+      {
+        "label": "Option 2",
+        "value": "option-2",
+        "selected": false
+      },
+      {
+        "label": "Option 3",
+        "value": "option-3",
+        "selected": false
+      }
+    ]
+  }
+]

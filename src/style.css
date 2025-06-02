@@ -1,27 +1,172 @@
 body {
-  font-family: Arial, sans-serif;
   margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f0f2f5;
+}
+
+.app-container {
   display: flex;
+  height: 100vh;
 }
 
 .sidebar {
-  width: 250px;
-  background-color: #f0f0f0;
-  padding: 10px;
-  height: 100vh;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  width: 240px;
+  background-color: #fff;
+  border-right: 1px solid #ddd;
+  padding: 15px;
+  overflow-y: auto;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.05);
 }
 
 .sidebar-item {
-  padding: 10px;
-  margin-bottom: 8px;
-  background-color: white;
-  cursor: pointer;
-  border-radius: 4px;
+  padding: 10px 12px;
+  background-color: #f8f9fa;
   border: 1px solid #ccc;
-  transition: background 0.3s;
+  margin-bottom: 10px;
+  cursor: grab;
+  border-radius: 5px;
+  transition: background-color 0.2s;
 }
 
 .sidebar-item:hover {
-  background-color: #e0e0e0;
+  background-color: #e2e6ea;
 }
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+}
+
+.form-block {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  position: relative;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.delete-btn, .edit-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.settings-panel {
+  margin-top: 10px;
+  padding: 10px;
+  border-top: 1px dashed #ccc;
+  background-color: #fefefe;
+}
+
+.form-content label {
+  font-weight: bold;
+  display: block;
+  margin-top: 10px;
+}
+
+.form-content input,
+.form-content select,
+.form-content textarea {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.warning {
+  color: red;
+  font-style: italic;
+}
+
+/*form*/
+.form-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.options-wrapper input {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.options-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.option-item {
+  display: flex;
+  gap: 10px;
+}
+
+.option-item input {
+  flex: 1;
+}
+
+.add-option {
+  margin-top: 10px;
+  padding: 6px 10px;
+  background-color: #007bff;
+  color: white;
+  font-size: 13px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: fit-content;
+  align-self: flex-start;
+}
+
+.add-option:hover {
+  background-color: #0056b3;
+}
+
+
+.access-group {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.option-item {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.option-item input {
+  flex: 1;
+}
+
