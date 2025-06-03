@@ -170,3 +170,37 @@ body {
   flex: 1;
 }
 
+/*json*/
+.app-container {
+  display: flex;
+  height: 100vh; /* full viewport height */
+  width: 100vw;
+}
+
+.sidebar {
+  width: 250px;
+  /* your existing sidebar styles */
+}
+
+.main-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  /* your existing main styles */
+}
+
+.json-bar {
+  border-top: 1px solid #ccc;
+  padding: 10px;
+  background: #fafafa;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+

@@ -26,5 +26,55 @@
         "selected": false
       }
     ]
-  }
+  },
+  {
+  "type": "button",
+  "label": "button",
+  "className": "btn btn-primary",
+  "name": "submit-btn-12345",
+  "value": "submit-form",
+  "access": true
+},
+{
+  "type": "checkbox",
+  "label": "Checkbox Group",
+  "helpText": "You can select multiple",
+  "required": true,
+  "inline": true,
+  "otherOption": true,
+  "className": "form-check",
+  "name": "checkbox-group-1748879852269",
+  "access": true,
+  "values": [
+    { "label": "Option 1", "value": "option-1" },
+    { "label": "Option 2", "value": "option-2" }
+  ]
+},
+{
+  "type": "datefield",
+  "label": "Date Field",
+  "className": "form-control",
+  "name": "datefield-1234567890"
+},
+{
+    "type": "uploadfile",
+    "label": "Upload Resume",
+    "className": "form-control",
+    "name": "resume-upload",
+    "access": false
+  },
+  {
+  "type": "header",
+  "label": "Header Text",
+  "headerType": "h2",
+  "className": "custom-header-class",
+  "access": false
+}
+
+
+
+
+
+
+
 ]

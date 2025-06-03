@@ -13,10 +13,34 @@ const main = document.createElement('div');
 main.className = 'main-content';
 main.id = 'form-canvas';
 
+// === Generate JSON Button and Output ===
+const jsonBar = document.createElement('div');
+jsonBar.className = 'json-bar';
+
+const jsonButton = document.createElement('button');
+jsonButton.textContent = 'Generate JSON';
+jsonButton.className = 'generate-json-btn';
+
+const jsonOutput = document.createElement('pre');
+jsonOutput.className = 'json-output';
+
+jsonBar.appendChild(jsonButton);
+jsonBar.appendChild(jsonOutput);
+
+// Create a wrapper to hold main and jsonBar vertically
+const mainWrapper = document.createElement('div');
+mainWrapper.className = 'main-wrapper';
+
+mainWrapper.appendChild(main);
+mainWrapper.appendChild(jsonBar);
+
+// Append sidebar and mainWrapper to appContainer
 appContainer.appendChild(sidebar);
-appContainer.appendChild(main);
+appContainer.appendChild(mainWrapper);
+
 document.body.appendChild(appContainer);
 
+// Default data helper
 function getDefaultData(type) {
   return {
     label: type.charAt(0).toUpperCase() + type.slice(1),
@@ -26,6 +50,7 @@ function getDefaultData(type) {
   };
 }
 
+// Create sidebar draggable items
 sidebarItems.forEach(item => {
   const el = document.createElement('div');
   el.className = 'sidebar-item';
@@ -45,7 +70,28 @@ sidebarItems.forEach(item => {
   sidebar.appendChild(el);
 });
 
+// Allow main content area to accept drops
+main.addEventListener('dragover', e => e.preventDefault());
+main.addEventListener('dragenter', e => {
+  e.preventDefault();
+  main.classList.add('drag-over');
+});
+main.addEventListener('dragleave', e => {
+  e.preventDefault();
+  main.classList.remove('drag-over');
+});
+main.addEventListener('drop', e => {
+  e.preventDefault();
+  main.classList.remove('drag-over');
 
+  const type = e.dataTransfer.getData('type');
+  if (!type) return;
+
+  const data = formData.find(f => f.type === type) || getDefaultData(type);
+  renderFormBlock(type, data);
+});
+
+// Render form block
 function renderFormBlock(type, data) {
   const block = document.createElement('div');
   block.className = 'form-block';
@@ -60,38 +106,45 @@ function renderFormBlock(type, data) {
   deleteBtn.addEventListener('click', () => block.remove());
 
   const settingsBtn = document.createElement('button');
-  settingsBtn.innerHTML = '⚙️';
+  settingsBtn.innerHTML = '✏️';
   settingsBtn.className = 'edit-btn';
   settingsBtn.title = 'Edit';
 
-  // Main content container inside form-block
   const content = document.createElement('div');
   content.className = 'form-content';
 
-  // Always render label upfront
-  const labelEl = document.createElement('label');
-  labelEl.textContent = data.label || type.charAt(0).toUpperCase() + type.slice(1);
-  content.appendChild(labelEl);
-
-  // Container for input or settings form
   const fieldContainer = document.createElement('div');
   fieldContainer.className = 'field-container';
-  fieldContainer.innerHTML = formComponents[type] ? formComponents[type](data) : `<p class="warning">Unknown component: <strong>${type}</strong></p>`;
+
+  const previewFn = formComponents[type];
+  const settingsKey = type + 'Settings';
+  const settingsFn = formComponents[settingsKey];
+
+  if (!previewFn) {
+    fieldContainer.innerHTML = `<p class="warning">Unknown component: <strong>${type}</strong></p>`;
+  } else {
+    fieldContainer.innerHTML = previewFn(data);
+    fieldContainer.__data = data; // Store data reference
+  }
+
+  fieldContainer.dataset.mode = 'input';
   content.appendChild(fieldContainer);
 
   settingsBtn.addEventListener('click', () => {
-    const settingsKey = type + 'Settings';
-    const extendedSettings = formComponents[settingsKey];
-    if (!extendedSettings) return;
+    if (!settingsFn) return;
 
-    // Toggle between input and settings
     if (fieldContainer.dataset.mode === 'settings') {
-      // Switch back to input field preview
-      fieldContainer.innerHTML = formComponents[type](data);
+      // Save label change before switching back to preview
+      const labelInput = fieldContainer.querySelector('input[value][type="text"]');
+      if (labelInput && labelInput.value.trim() !== '') {
+        data.label = labelInput.value.trim();
+      }
+
+      fieldContainer.innerHTML = previewFn(data);
+      fieldContainer.__data = data;
       fieldContainer.dataset.mode = 'input';
     } else {
-      // Switch to settings form
-      fieldContainer.innerHTML = extendedSettings(data);
+      fieldContainer.innerHTML = settingsFn(data);
       fieldContainer.dataset.mode = 'settings';
     }
   });
@@ -103,3 +156,24 @@ function renderFormBlock(type, data) {
   block.appendChild(content);
   main.appendChild(block);
 }
+
+// Generate JSON from dropped components
+function getFormDataFromCanvas() {
+  const blocks = main.querySelectorAll('.form-block');
+  const result = [];
+
+  blocks.forEach(block => {
+    const fieldContainer = block.querySelector('.field-container');
+    if (fieldContainer && fieldContainer.__data) {
+      result.push(fieldContainer.__data);
+    }
+  });
+
+  return result;
+}
+
+// Button click handler
+jsonButton.addEventListener('click', () => {
+  const data = getFormDataFromCanvas();
+  jsonOutput.textContent = JSON.stringify(data, null, 2);
+});

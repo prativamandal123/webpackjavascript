@@ -1,16 +1,11 @@
 [
-  { "icon": "🔤","label": "Autocomplete", "type": "autocomplete" },
+  { "label": "Autocomplete", "type": "autocomplete" },
   { "label": "Button", "type": "button" },
-  { "label": "Checkbox Group", "type": "checkboxgroup" },
-  { "label": "Data File", "type": "datafile" },
+  { "label": "Checkbox Group", "type": "checkbox" },
+  { "label": "Date Field", "type": "datefield" },
   { "label": "Upload File", "type": "uploadfile" },
-  { "label": "Header", "type": "header" },
-  { "label": "Hidden Input", "type": "hiddeninput" },
-  { "label": "Number", "type": "number" },
-  { "label": "Paragraph", "type": "paragraph" },
-  { "label": "Radio Group", "type": "radiogroup" },
-  { "label": "Select", "type": "select" },
-  { "label": "Text Field", "type": "textfield" },
-  { "label": "Text Field Copy", "type": "textfield2" },
-  { "label": "Text Area", "type": "textarea" }
+  { "label": "Header", "type": "header" }
+  
 ]
+
+
