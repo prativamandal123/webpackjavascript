@@ -28,28 +28,23 @@ body {
   border-radius: 5px;
   transition: background-color 0.2s;
 }
-
 .sidebar-item:hover {
   background-color: #e2e6ea;
 }
-
 .main-wrapper {
   display: flex;
   flex-direction: column;
   flex: 1;
   overflow: hidden;
 }
-
 .main-content {
   border: 2px dashed #ccc;
   border-radius: 6px;
   padding: 10px;
-  min-height: 400px; /* ensures visible area */
+  min-height: 400px; 
   overflow-y: auto;
-  background: #fff; /* subtle white background */
+  background: #fff; 
 }
-
-
 .form-block {
   background-color: #fff;
   border: 1px solid #ddd;
@@ -107,53 +102,77 @@ body {
 .form-settings {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 16px;
+  max-width: 800px;
+  font-family: sans-serif;
 }
 
-.form-group {
+.form-row {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
 }
 
-.form-group label {
+.form-row label {
+  width: 150px;
   font-weight: 600;
-  margin-bottom: 5px;
   color: #333;
+  flex-shrink: 0;
 }
 
-.form-group input[type="text"],
-.form-group input[type="number"],
-.form-group input[type="email"],
-.form-group input[type="password"],
-.options-wrapper input {
-  padding: 8px 10px;
+.form-row input[type="text"],
+.form-row input[type="number"],
+.form-row input[type="email"],
+.form-row input[type="password"] {
+  flex: 1;
+  padding: 10px 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 15px;
+  box-sizing: border-box;
+  width: auto;
 }
 
+.form-row input[type="checkbox"].checkbox-input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* Options section */
 .options-wrapper {
+  width: 150%;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
 }
 
 .option-item {
   display: flex;
   gap: 10px;
   margin-bottom: 8px;
+  align-items: center;
 }
 
 .option-item input {
   flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 .add-option {
-  margin-top: 10px;
-  padding: 6px 10px;
+  padding: 8px 14px;
   background-color: #007bff;
   color: white;
-  font-size: 13px;
+  font-size: 14px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -171,6 +190,16 @@ body {
   gap: 10px;
 }
 
+.delete-option {
+  border: none;
+  background-color: transparent;
+ color: #d9363e;
+  font-size: 12px;
+  line-height: 1;
+  padding: 0 10px;
+  cursor: pointer;
+  border-radius: 4px;
+}
 /*json*/
 .json-bar {
   border: 2px solid #ccc;
@@ -182,7 +211,6 @@ body {
   font-family: monospace;
   overflow-y: auto;
 }
-
 .json-output {
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -193,7 +221,6 @@ body {
   border: 1px solid #ddd;
   border-radius: 4px;
 }
-
 .json-bar button {
   padding: 8px 12px;
   margin: 4px;
@@ -203,14 +230,12 @@ body {
   min-width: 140px;
   cursor: pointer;
 }
-
 /* Green buttons */
 .generate-json-btn,
 .generate-html-btn {
   background-color: #28a745;
   color: white;
 }
-
 .generate-json-btn:hover,
 .generate-html-btn:hover {
   background-color: #218838;
@@ -224,4 +249,10 @@ body {
 
 .clear-btn:hover {
   background-color: #c82333;
+}
+
+/*8preview label*/
+.label-only-preview {
+  font-weight: bold;
+  padding: 4px 0;
 }

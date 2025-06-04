@@ -5,7 +5,6 @@
   { "label": "Date Field", "type": "datefield" },
   { "label": "Upload File", "type": "uploadfile" },
   { "label": "Header", "type": "header" }
-  
 ]
 
 
