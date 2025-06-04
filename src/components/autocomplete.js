@@ -22,61 +22,98 @@ export function AutocompleteSettings(data = {}) {
   const values = data.values || [];
   const id = `options-${Date.now()}`;
 
-  // Initial options HTML
+  // Initial options HTML with delete buttons
   const optionsHTML = values.map((v) => `
     <div class="option-item">
       <input type="text" placeholder="Label" value="${v.label}" />
       <input type="text" placeholder="Value" value="${v.value}" />
+      <button type="button" class="delete-option" title="Remove">×</button>
     </div>
   `).join('');
 
-  // Return HTML with unique wrapper ID
   setTimeout(() => {
     const addBtn = document.querySelector(`#${id}-btn`);
     const wrapper = document.querySelector(`#${id}`);
+
     if (addBtn && wrapper) {
+      // Add new option
       addBtn.addEventListener('click', () => {
         const div = document.createElement('div');
         div.className = 'option-item';
         div.innerHTML = `
-          <input type="text" placeholder="" />
-          <input type="text" placeholder="" />
+          <input type="text" placeholder="Label" />
+          <input type="text" placeholder="Value" />
+          <button type="button" class="delete-option" title="Remove">×</button>
         `;
         wrapper.appendChild(div);
+      });
+
+      // Use event delegation to handle delete clicks
+      wrapper.addEventListener('click', (e) => {
+        if (e.target.classList.contains('delete-option')) {
+          const parent = e.target.closest('.option-item');
+          if (parent) parent.remove();
+        }
       });
     }
   }, 0);
 
   return `
     <div class="form-settings">
-      <label>Required</label>
-      <input type="checkbox" ${data.required ? 'checked' : ''} />
-
-      <label>Label</label>
-      <input type="text" value="${data.label || ''}" />
-
-      <label>Help Text</label>
-      <input type="text" value="${data.helpText || ''}" />
-
-      <label>Placeholder</label>
-      <input type="text" value="${data.placeholder || ''}" />
-
-      <label>Class</label>
-      <input type="text" value="${data.className || 'form-control'}" />
-
-      <label>Name</label>
-      <input type="text" value="${data.name || ''}" />
-
-      <label>Access Limit</label>
-      <input type="checkbox" ${data.access ? 'checked' : ''} /> Limit access to specific roles
-
-      <label>Options</label>
-      <div class="options-wrapper" id="${id}">
-        ${optionsHTML}
+      <div class="form-row">
+        <label>Required</label>
+        <input type="checkbox" class="checkbox-input" ${data.required ? 'checked' : ''} />
       </div>
-      <button type="button" class="add-option" id="${id}-btn">Add Option +</button>
+
+      <div class="form-row">
+        <label>Label</label>
+        <input type="text" value="${data.label || ''}" />
+      </div>
+
+      <div class="form-row">
+        <label>Help Text</label>
+        <input type="text" value="${data.helpText || ''}" />
+      </div>
+
+      <div class="form-row">
+        <label>Placeholder</label>
+        <input type="text" value="${data.placeholder || ''}" />
+      </div>
+
+      <div class="form-row">
+        <label>Class</label>
+        <input type="text" value="${data.className || 'form-control'}" />
+      </div>
+
+      <div class="form-row">
+        <label>Name</label>
+        <input type="text" value="${data.name || ''}" />
+      </div>
+
+      <div class="form-row">
+        <label>Access</label>
+        <input type="checkbox" class="checkbox-input" ${data.access ? 'checked' : ''} />
+      </div>
+
+      <div class="form-row">
+        <label></label>
+        <h4>Limit access to specific roles</h4>
+      </div>
+
+      <div class="form-row">
+        <label>Options</label>
+        <div class="options-wrapper" id="${id}">
+          ${optionsHTML}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label></label>
+        <button type="button" class="add-option" id="${id}-btn">Add Option +</button>
+      </div>
     </div>
   `;
 }
+
 
 
