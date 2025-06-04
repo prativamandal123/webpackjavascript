@@ -115,6 +115,7 @@ function renderFormBlock(type, data) {
 
   const fieldContainer = document.createElement('div');
   fieldContainer.className = 'field-container';
+  fieldContainer.__data = data;
 
   const previewFn = formComponents[type];
   const settingsKey = type + 'Settings';
@@ -122,33 +123,60 @@ function renderFormBlock(type, data) {
 
   if (!previewFn) {
     fieldContainer.innerHTML = `<p class="warning">Unknown component: <strong>${type}</strong></p>`;
-  } else {
-    fieldContainer.innerHTML = previewFn(data);
-    fieldContainer.__data = data; // Store data reference
+    block.appendChild(fieldContainer);
+    main.appendChild(block);
+    return;
   }
 
-  fieldContainer.dataset.mode = 'input';
-  content.appendChild(fieldContainer);
+  // 👇 Full preview (label + input)
+  const previewDiv = document.createElement('div');
+  previewDiv.className = 'preview-view';
+  previewDiv.innerHTML = previewFn(data);
 
+  // 👇 Label-only preview
+  const labelPreview = document.createElement('div');
+  labelPreview.className = 'label-only-preview';
+  labelPreview.style.display = 'none';
+  labelPreview.textContent = data.label || 'Untitled';
+
+  // 👇 Settings section (hidden initially)
+  const settingsDiv = document.createElement('div');
+  settingsDiv.className = 'settings-view';
+  settingsDiv.style.display = 'none';
+  settingsDiv.innerHTML = settingsFn(data);
+
+  // 👇 Toggle settings view
+  let isEditing = false;
   settingsBtn.addEventListener('click', () => {
-    if (!settingsFn) return;
-
-    if (fieldContainer.dataset.mode === 'settings') {
-      // Save label change before switching back to preview
-      const labelInput = fieldContainer.querySelector('input[value][type="text"]');
-      if (labelInput && labelInput.value.trim() !== '') {
+    if (isEditing) {
+      // Save label
+      const labelInput = settingsDiv.querySelector('input[type="text"]');
+      if (labelInput && labelInput.value.trim()) {
         data.label = labelInput.value.trim();
       }
 
-      fieldContainer.innerHTML = previewFn(data);
-      fieldContainer.__data = data;
-      fieldContainer.dataset.mode = 'input';
+      previewDiv.innerHTML = previewFn(data);
+      labelPreview.textContent = data.label || 'Untitled';
+
+      // Show full preview again
+      previewDiv.style.display = 'block';
+      labelPreview.style.display = 'none';
+      settingsDiv.style.display = 'none';
+      isEditing = false;
     } else {
-      fieldContainer.innerHTML = settingsFn(data);
-      fieldContainer.dataset.mode = 'settings';
+      // Show only label + settings
+      previewDiv.style.display = 'none';
+      labelPreview.style.display = 'block';
+      settingsDiv.style.display = 'block';
+      isEditing = true;
     }
   });
 
+  fieldContainer.appendChild(previewDiv);      // full view
+  fieldContainer.appendChild(labelPreview);    // label only
+  fieldContainer.appendChild(settingsDiv);     // settings form
+
+  content.appendChild(fieldContainer);
   toolbar.appendChild(settingsBtn);
   toolbar.appendChild(deleteBtn);
 
@@ -156,6 +184,8 @@ function renderFormBlock(type, data) {
   block.appendChild(content);
   main.appendChild(block);
 }
+
+
 
 // Generate JSON from dropped components
 function getFormDataFromCanvas() {

@@ -230,4 +230,8 @@ body {
   overflow-y: auto;
 }
 
-
+/*8preview label*/
+.label-only-preview {
+  font-weight: bold;
+  padding: 4px 0;
+}
