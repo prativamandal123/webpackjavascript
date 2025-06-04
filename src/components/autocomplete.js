@@ -1,4 +1,3 @@
-// In Autocomplete function, return only input and datalist (no label)
 export function Autocomplete(data = {}) {
   const id = `autocomplete-list-${Date.now()}`;
   const options = (data.values || [])
@@ -6,10 +5,13 @@ export function Autocomplete(data = {}) {
     .join('');
 
   return `
-    <input type="text" name="${data.name || 'autocomplete'}" placeholder="Start typing..." list="${id}" />
-    <datalist id="${id}">
-      ${options}
-    </datalist>
+    <div class="${data.className || ''}">
+      ${data.label ? `<label><strong>${data.label}</strong></label>` : ''}
+      <input type="text" name="${data.name || 'autocomplete'}" placeholder="${data.placeholder || 'Start typing...'}" list="${id}" />
+      <datalist id="${id}">
+        ${options}
+      </datalist>
+    </div>
   `;
 }
 
