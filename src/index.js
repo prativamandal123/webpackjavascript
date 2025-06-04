@@ -13,34 +13,43 @@ const main = document.createElement('div');
 main.className = 'main-content';
 main.id = 'form-canvas';
 
-// === Generate JSON Button and Output ===
+//Generate Buttons and Shared Output
 const jsonBar = document.createElement('div');
 jsonBar.className = 'json-bar';
 
 const jsonButton = document.createElement('button');
-jsonButton.textContent = 'Generate JSON';
+jsonButton.textContent = 'Get JSON';
 jsonButton.className = 'generate-json-btn';
 
-const jsonOutput = document.createElement('pre');
-jsonOutput.className = 'json-output';
+const htmlButton = document.createElement('button');
+htmlButton.textContent = 'Get HTML';
+htmlButton.className = 'generate-html-btn';
+
+const clearButton = document.createElement('button');
+clearButton.textContent = 'Clear';
+clearButton.className = 'clear-btn';
+
+const sharedOutput = document.createElement('pre');
+sharedOutput.className = 'json-output';
 
 jsonBar.appendChild(jsonButton);
-jsonBar.appendChild(jsonOutput);
+jsonBar.appendChild(htmlButton);
+jsonBar.appendChild(clearButton);
+jsonBar.appendChild(sharedOutput);
 
-// Create a wrapper to hold main and jsonBar vertically
+//Create wrapper
 const mainWrapper = document.createElement('div');
 mainWrapper.className = 'main-wrapper';
 
 mainWrapper.appendChild(main);
 mainWrapper.appendChild(jsonBar);
 
-// Append sidebar and mainWrapper to appContainer
+//Assemble page
 appContainer.appendChild(sidebar);
 appContainer.appendChild(mainWrapper);
-
 document.body.appendChild(appContainer);
 
-// Default data helper
+//Helpers
 function getDefaultData(type) {
   return {
     label: type.charAt(0).toUpperCase() + type.slice(1),
@@ -50,7 +59,7 @@ function getDefaultData(type) {
   };
 }
 
-// Create sidebar draggable items
+// Sidebar items
 sidebarItems.forEach(item => {
   const el = document.createElement('div');
   el.className = 'sidebar-item';
@@ -70,7 +79,7 @@ sidebarItems.forEach(item => {
   sidebar.appendChild(el);
 });
 
-// Allow main content area to accept drops
+// Drop area
 main.addEventListener('dragover', e => e.preventDefault());
 main.addEventListener('dragenter', e => {
   e.preventDefault();
@@ -83,19 +92,59 @@ main.addEventListener('dragleave', e => {
 main.addEventListener('drop', e => {
   e.preventDefault();
   main.classList.remove('drag-over');
-
   const type = e.dataTransfer.getData('type');
   if (!type) return;
-
   const data = formData.find(f => f.type === type) || getDefaultData(type);
   renderFormBlock(type, data);
 });
 
-// Render form block
+//variable to track dragging inside main
+let dragSrcEl = null;
+
+//Render form block
 function renderFormBlock(type, data) {
   const block = document.createElement('div');
   block.className = 'form-block';
 
+  // Make blocks draggable within main container for reordering
+  block.setAttribute('draggable', 'true');
+
+  block.addEventListener('dragstart', (e) => {
+    dragSrcEl = block;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', block.innerHTML);
+  });
+
+  block.addEventListener('dragover', (e) => {
+    e.preventDefault(); // Necessary to allow drop
+    e.dataTransfer.dropEffect = 'move';
+    block.classList.add('drag-over-reorder');
+  });
+
+  block.addEventListener('dragleave', (e) => {
+    block.classList.remove('drag-over-reorder');
+  });
+
+  block.addEventListener('drop', (e) => {
+    e.stopPropagation(); // Stops some browsers from redirecting.
+    block.classList.remove('drag-over-reorder');
+
+    if (dragSrcEl !== block) {
+      // Reorder blocks in the main container
+      const blocksArray = Array.from(main.querySelectorAll('.form-block'));
+      const srcIndex = blocksArray.indexOf(dragSrcEl);
+      const targetIndex = blocksArray.indexOf(block);
+
+      if (srcIndex < targetIndex) {
+        main.insertBefore(dragSrcEl, block.nextSibling);
+      } else {
+        main.insertBefore(dragSrcEl, block);
+      }
+    }
+    return false;
+  });
+
+  // Existing code ...
   const toolbar = document.createElement('div');
   toolbar.className = 'toolbar';
 
@@ -124,7 +173,7 @@ function renderFormBlock(type, data) {
     fieldContainer.innerHTML = `<p class="warning">Unknown component: <strong>${type}</strong></p>`;
   } else {
     fieldContainer.innerHTML = previewFn(data);
-    fieldContainer.__data = data; // Store data reference
+    fieldContainer.__data = data;
   }
 
   fieldContainer.dataset.mode = 'input';
@@ -134,7 +183,6 @@ function renderFormBlock(type, data) {
     if (!settingsFn) return;
 
     if (fieldContainer.dataset.mode === 'settings') {
-      // Save label change before switching back to preview
       const labelInput = fieldContainer.querySelector('input[value][type="text"]');
       if (labelInput && labelInput.value.trim() !== '') {
         data.label = labelInput.value.trim();
@@ -157,7 +205,8 @@ function renderFormBlock(type, data) {
   main.appendChild(block);
 }
 
-// Generate JSON from dropped components
+
+// Helpers
 function getFormDataFromCanvas() {
   const blocks = main.querySelectorAll('.form-block');
   const result = [];
@@ -172,8 +221,90 @@ function getFormDataFromCanvas() {
   return result;
 }
 
-// Button click handler
+function getHTMLFromCanvas() {
+  const blocks = main.querySelectorAll('.form-block');
+  let html = '';
+
+  blocks.forEach(block => {
+    const fieldContainer = block.querySelector('.field-container');
+    if (fieldContainer && fieldContainer.dataset.mode === 'input') {
+      html += fieldContainer.innerHTML + '\n';
+    }
+  });
+
+  return html.trim();
+}
+
+// Button listeners
 jsonButton.addEventListener('click', () => {
   const data = getFormDataFromCanvas();
-  jsonOutput.textContent = JSON.stringify(data, null, 2);
+  sharedOutput.textContent = JSON.stringify(data, null, 2);
 });
+
+htmlButton.addEventListener('click', () => {
+  const html = getHTMLFromCanvas();
+  sharedOutput.textContent = html;
+});
+
+clearButton.addEventListener('click', () => {
+  main.innerHTML = '';            // Clear all dropped fields
+  sharedOutput.textContent = '';  // Clear output area
+});
+
+// Assuming you already have your reorder code for .form-blocks (unchanged)
+
+// --- Make entire main container draggable WITHOUT breaking reorder ---
+
+const mainEl = document.getElementById('form-canvas');
+
+let isDraggingMain = false;
+let startX, startY;
+let origX = 0, origY = 0;
+
+mainEl.style.touchAction = 'none'; // important for pointer events on touch devices
+
+mainEl.addEventListener('pointerdown', (e) => {
+  // Only start drag if NOT clicking inside a form block or its controls
+  if (e.target.closest('.form-block, button, input, textarea, select')) {
+    return; // skip dragging main if interacting with form blocks
+  }
+  
+  e.preventDefault();
+  isDraggingMain = true;
+  startX = e.clientX;
+  startY = e.clientY;
+
+  // Parse current transform translate values if any
+  const style = window.getComputedStyle(mainEl);
+  const matrix = new DOMMatrixReadOnly(style.transform);
+  origX = matrix.m41; // translateX
+  origY = matrix.m42; // translateY
+
+  window.addEventListener('pointermove', pointerMoveHandler);
+  window.addEventListener('pointerup', pointerUpHandler);
+  window.addEventListener('pointercancel', pointerUpHandler);
+});
+
+function pointerMoveHandler(e) {
+  if (!isDraggingMain) return;
+  e.preventDefault();
+
+  const dx = e.clientX - startX;
+  const dy = e.clientY - startY;
+
+  mainEl.style.transform = `translate(${origX + dx}px, ${origY + dy}px)`;
+}
+
+function pointerUpHandler(e) {
+  if (!isDraggingMain) return;
+  e.preventDefault();
+
+  isDraggingMain = false;
+
+  window.removeEventListener('pointermove', pointerMoveHandler);
+  window.removeEventListener('pointerup', pointerUpHandler);
+  window.removeEventListener('pointercancel', pointerUpHandler);
+}
+
+
+
