@@ -9,7 +9,6 @@ export function Autocomplete(data = {}) {
       ${data.label ? `<label><strong>${data.label}</strong></label>` : ''}
       <input type="text" name="${data.name || 'autocomplete'}" placeholder="${data.placeholder || ''}" list="${id}" />
       <datalist id="${id}">
-        ${options}
       </datalist>
     </div>
   `;
@@ -23,7 +22,7 @@ export function AutocompleteSettings(data = {}) {
   // Initial options HTML with delete buttons
   const optionsHTML = values.map((v) => `
     <div class="option-item">
-      <input type="text" placeholder="Label" value="${v.label}" />
+       <input type="text" placeholder="Label" value="${v.label}" />
       <input type="text" placeholder="Value" value="${v.value}" />
       <button type="button" class="delete-option" title="Remove">❌</button>
     </div>
@@ -39,7 +38,7 @@ export function AutocompleteSettings(data = {}) {
         const div = document.createElement('div');
         div.className = 'option-item';
         div.innerHTML = `
-          <input type="text" placeholder="Label" />
+        <input type="text" placeholder="Label" />
           <input type="text" placeholder="Value" />
           <button type="button" class="delete-option" title="Remove">❌</button>
         `;

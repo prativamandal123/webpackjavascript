@@ -103,113 +103,49 @@ let dragSrcEl = null;
 
 //Render form block
 
-// function renderFormBlock(type, data) {
-//   const block = document.createElement('div');
-//   block.className = 'form-block';
-
-//   // Make blocks draggable within main container for reordering
-//   block.setAttribute('draggable', 'true');
-
-//   block.addEventListener('dragstart', (e) => {
-//     dragSrcEl = block;
-//     e.dataTransfer.effectAllowed = 'move';
-//     e.dataTransfer.setData('text/html', block.innerHTML);
-//   });
-
-//   block.addEventListener('dragover', (e) => {
-//     e.preventDefault(); // Necessary to allow drop
-//     e.dataTransfer.dropEffect = 'move';
-//     block.classList.add('drag-over-reorder');
-//   });
-
-//   block.addEventListener('dragleave', (e) => {
-//     block.classList.remove('drag-over-reorder');
-//   });
-
-//   block.addEventListener('drop', (e) => {
-//     e.stopPropagation(); // Stops some browsers from redirecting.
-//     block.classList.remove('drag-over-reorder');
-
-//     if (dragSrcEl !== block) {
-//       // Reorder blocks in the main container
-//       const blocksArray = Array.from(main.querySelectorAll('.form-block'));
-//       const srcIndex = blocksArray.indexOf(dragSrcEl);
-//       const targetIndex = blocksArray.indexOf(block);
-
-//       if (srcIndex < targetIndex) {
-//         main.insertBefore(dragSrcEl, block.nextSibling);
-//       } else {
-//         main.insertBefore(dragSrcEl, block);
-//       }
-//     }
-//     return false;
-//   });
-
-//   // Existing code ...
-//   const toolbar = document.createElement('div');
-//   toolbar.className = 'toolbar';
-
-//   const deleteBtn = document.createElement('button');
-//   deleteBtn.innerHTML = '❌';
-//   deleteBtn.className = 'delete-btn';
-//   deleteBtn.title = 'Delete';
-//   deleteBtn.addEventListener('click', () => block.remove());
-
-//   const settingsBtn = document.createElement('button');
-//   settingsBtn.innerHTML = '✏️';
-//   settingsBtn.className = 'edit-btn';
-//   settingsBtn.title = 'Edit';
-
-//   const content = document.createElement('div');
-//   content.className = 'form-content';
-
-//   const fieldContainer = document.createElement('div');
-//   fieldContainer.className = 'field-container';
-
-//   const previewFn = formComponents[type];
-//   const settingsKey = type + 'Settings';
-//   const settingsFn = formComponents[settingsKey];
-
-//   if (!previewFn) {
-//     fieldContainer.innerHTML = `<p class="warning">Unknown component: <strong>${type}</strong></p>`;
-//   } else {
-//     fieldContainer.innerHTML = previewFn(data);
-//     fieldContainer.__data = data;
-//   }
-
-//   fieldContainer.dataset.mode = 'input';
-//   content.appendChild(fieldContainer);
-
-//   settingsBtn.addEventListener('click', () => {
-//     if (!settingsFn) return;
-
-//     if (fieldContainer.dataset.mode === 'settings') {
-//       const labelInput = fieldContainer.querySelector('input[value][type="text"]');
-//       if (labelInput && labelInput.value.trim() !== '') {
-//         data.label = labelInput.value.trim();
-//       }
-
-//       fieldContainer.innerHTML = previewFn(data);
-//       fieldContainer.__data = data;
-//       fieldContainer.dataset.mode = 'input';
-//     } else {
-//       fieldContainer.innerHTML = settingsFn(data);
-//       fieldContainer.dataset.mode = 'settings';
-//     }
-//   });
-
-//   toolbar.appendChild(settingsBtn);
-//   toolbar.appendChild(deleteBtn);
-
-//   block.appendChild(toolbar);
-//   block.appendChild(content);
-//   main.appendChild(block);
-// }
-
 function renderFormBlock(type, data) {
   const block = document.createElement('div');
   block.className = 'form-block';
 
+  // Make blocks draggable within main container for reordering
+  block.setAttribute('draggable', 'true');
+
+  block.addEventListener('dragstart', (e) => {
+    dragSrcEl = block;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', block.innerHTML);
+  });
+
+  block.addEventListener('dragover', (e) => {
+    e.preventDefault(); // Necessary to allow drop
+    e.dataTransfer.dropEffect = 'move';
+    block.classList.add('drag-over-reorder');
+  });
+
+  block.addEventListener('dragleave', (e) => {
+    block.classList.remove('drag-over-reorder');
+  });
+
+  block.addEventListener('drop', (e) => {
+    e.stopPropagation(); // Stops some browsers from redirecting.
+    block.classList.remove('drag-over-reorder');
+
+    if (dragSrcEl !== block) {
+      // Reorder blocks in the main container
+      const blocksArray = Array.from(main.querySelectorAll('.form-block'));
+      const srcIndex = blocksArray.indexOf(dragSrcEl);
+      const targetIndex = blocksArray.indexOf(block);
+
+      if (srcIndex < targetIndex) {
+        main.insertBefore(dragSrcEl, block.nextSibling);
+      } else {
+        main.insertBefore(dragSrcEl, block);
+      }
+    }
+    return false;
+  });
+
+  // Existing code
   const toolbar = document.createElement('div');
   toolbar.className = 'toolbar';
 
@@ -240,30 +176,32 @@ function renderFormBlock(type, data) {
     block.appendChild(fieldContainer);
     main.appendChild(block);
     return;
-  }
+  } 
 
-  // 👇 Full preview (label + input)
+  // Full preview (label + input)
   const previewDiv = document.createElement('div');
   previewDiv.className = 'preview-view';
   previewDiv.innerHTML = previewFn(data);
 
-  // 👇 Label-only preview
+  // Label-only preview
   const labelPreview = document.createElement('div');
   labelPreview.className = 'label-only-preview';
   labelPreview.style.display = 'none';
   labelPreview.textContent = data.label || 'Untitled';
 
-  // 👇 Settings section (hidden initially)
+  // Settings section (hidden initially)
   const settingsDiv = document.createElement('div');
   settingsDiv.className = 'settings-view';
   settingsDiv.style.display = 'none';
   settingsDiv.innerHTML = settingsFn(data);
-
-  // 👇 Toggle settings view
   let isEditing = false;
+
+  fieldContainer.dataset.mode = 'input';
+  content.appendChild(fieldContainer);
+
   settingsBtn.addEventListener('click', () => {
     if (isEditing) {
-      // Save label
+       // Save label
       const labelInput = settingsDiv.querySelector('input[type="text"]');
       if (labelInput && labelInput.value.trim()) {
         data.label = labelInput.value.trim();
@@ -285,12 +223,12 @@ function renderFormBlock(type, data) {
       isEditing = true;
     }
   });
-
-  fieldContainer.appendChild(previewDiv);      // full view
+    fieldContainer.appendChild(previewDiv);      // full view
   fieldContainer.appendChild(labelPreview);    // label only
   fieldContainer.appendChild(settingsDiv);     // settings form
 
   content.appendChild(fieldContainer);
+
   toolbar.appendChild(settingsBtn);
   toolbar.appendChild(deleteBtn);
 
@@ -298,6 +236,7 @@ function renderFormBlock(type, data) {
   block.appendChild(content);
   main.appendChild(block);
 }
+
 
 // Helpers
 function getFormDataFromCanvas() {
