@@ -4,6 +4,7 @@ import {  Checkbox, CheckboxSettings } from './checkboxgroup.js';
 import { DateField, DateFieldSettings } from './Datefield.js';
 import { Header, HeaderSettings } from './Header.js';
 import { UploadFile, UploadFileSettings } from './uploadfile.js';
+import { fieldset, fieldsetSettings } from './Fieldset.js';
 
 
 export const formComponents = {
@@ -18,5 +19,7 @@ export const formComponents = {
     uploadfile: UploadFile,
     uploadfileSettings: UploadFileSettings,
     header: Header,
-    headerSettings: HeaderSettings
+    headerSettings: HeaderSettings,
+    fieldsetSettings: fieldsetSettings,
+    fieldset:fieldset
 };

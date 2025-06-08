@@ -8,7 +8,7 @@ export function Button(data = {}) {
     access = true
   } = data;
 
-  // Disabled attribute when access is false
+  
   const disabledAttr = access ? '' : 'disabled';
 
   return `

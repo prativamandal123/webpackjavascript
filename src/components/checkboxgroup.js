@@ -26,7 +26,7 @@ export function CheckboxSettings(data = {}) {
     </div>
   `).join('');
 
-  // Set timeout to allow DOM to be ready before attaching event
+  //timeout to allow DOM to be ready before attaching event
   setTimeout(() => {
     const addBtn = document.querySelector(`#${id}-btn`);
     const wrapper = document.querySelector(`#${id}`);

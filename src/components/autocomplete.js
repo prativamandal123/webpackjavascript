@@ -45,7 +45,7 @@ export function AutocompleteSettings(data = {}) {
         wrapper.appendChild(div);
       });
 
-      // Use event delegation to handle delete clicks
+      // event delegation to handle delete clicks
       wrapper.addEventListener('click', (e) => {
         if (e.target.classList.contains('delete-option')) {
           const parent = e.target.closest('.option-item');

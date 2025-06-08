@@ -4,7 +4,8 @@
   { "label": "Checkbox Group", "type": "checkbox" },
   { "label": "Date Field", "type": "datefield" },
   { "label": "Upload File", "type": "uploadfile" },
-  { "label": "Header", "type": "header" }
+  { "label": "Header", "type": "header" },
+  {"label": "Fieldset","type":"fieldset"}
 ]
 
 
