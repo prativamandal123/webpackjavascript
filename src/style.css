@@ -53,6 +53,13 @@ body {
   border-radius: 8px;
   position: relative;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: all 0.2s;
+}
+
+.form-block.dragging {
+  opacity: 0.5;
+  border: 2px dashed #0078ff !important;
+  background-color: rgba(0, 120, 255, 0.1);
 }
 
 .toolbar {
@@ -288,10 +295,12 @@ body {
 
 .drag-over-top {
   border-top: 2px solid #0078ff;
+  background-color: rgba(0, 120, 255, 0.05);
 }
 
 .drag-over-bottom {
   border-bottom: 2px solid #0078ff;
+  background-color: rgba(0, 120, 255, 0.05);
 }
 
 .selected-fieldset {
@@ -301,23 +310,16 @@ body {
 
 .fieldset-children {
   min-height: 40px;
-  border: 1px dashed #ccc;
   padding: 5px;
   margin-top: 10px;
 }
 
-.selected-fieldset .fieldset-children {
-  border-color: #0078ff;
-}
-
-/* Fieldset children specific styles */
 .fieldset-children .form-row {
   width: 100%;
   display: flex;
   gap: 20px;
   margin-bottom: 20px;
   padding: 10px;
-  background-color: rgba(0, 0, 0, 0.02);
   border-radius: 8px;
 }
 

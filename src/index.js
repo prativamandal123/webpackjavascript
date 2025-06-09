@@ -57,9 +57,9 @@ function getDefaultData(type) {
   };
 }
 
-let currentDropTarget = main;      // either `main` or a fieldset's `.fieldset-children`
-let selectedFieldset = null;       // reference to the <fieldset> that is "active"
-let dragSrcEl = null;              // currently dragged element
+let currentDropTarget = main;
+let selectedFieldset = null;
+let dragSrcEl = null;
 
 // ─── SIDEBAR: create draggable items and click behavior ───────────────────
 sidebarItems.forEach(item => {
@@ -115,12 +115,10 @@ function setupMainDropArea(container) {
     const type = e.dataTransfer.getData('type');
     if (type !== 'fieldset') return;
     
-    // Check if we're dropping near an existing row
     const rows = container.querySelectorAll('.form-row');
     let targetRow = null;
     
     if (rows.length > 0) {
-      // Find the closest row to the drop position
       const dropY = e.clientY;
       let closestDistance = Infinity;
       
@@ -137,11 +135,9 @@ function setupMainDropArea(container) {
     }
     
     if (targetRow) {
-      // Add to existing row
       const data = formData.find(f => f.type === 'fieldset') || getDefaultData('fieldset');
       renderFormBlock('fieldset', JSON.parse(JSON.stringify(data)), targetRow);
     } else {
-      // Create new row
       const row = createRowContainer();
       container.appendChild(row);
       const data = formData.find(f => f.type === 'fieldset') || getDefaultData('fieldset');
@@ -158,7 +154,6 @@ function createRowContainer() {
   row.style.display = 'flex';
   row.style.gap = '20px';
   
-  // Make the row a drop target for fieldsets
   row.addEventListener('dragover', e => {
     e.preventDefault();
     e.stopPropagation();
@@ -183,7 +178,7 @@ function createRowContainer() {
   return row;
 }
 
-// ─── RENDER A FORM BLOCK (either "fieldset" or other) ────────────────────
+// ─── RENDER A FORM BLOCK ────────────────────────────────────────────────
 function renderFormBlock(type, data, container) {
   const block = document.createElement('div');
   block.className = 'form-block';
@@ -193,17 +188,24 @@ function renderFormBlock(type, data, container) {
   block.setAttribute('draggable', 'true');
   block.__data = data;
 
-  // ─── DRAG AND DROP FOR REORDERING ──────────────────────────────────────
+  // Drag and drop handlers
   block.addEventListener('dragstart', e => {
     e.stopPropagation();
     dragSrcEl = block;
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', block.innerHTML);
     e.dataTransfer.setData('type', type);
+    setTimeout(() => block.classList.add('dragging'), 0);
+  });
+
+  block.addEventListener('dragend', () => {
+    block.classList.remove('dragging');
+    dragSrcEl = null;
   });
 
   block.addEventListener('dragover', e => {
-    if (dragSrcEl && dragSrcEl !== block) {
+    if (dragSrcEl && dragSrcEl !== block && 
+        dragSrcEl.parentElement === block.parentElement) {
       e.preventDefault();
       e.stopPropagation();
       const rect = block.getBoundingClientRect();
@@ -237,7 +239,7 @@ function renderFormBlock(type, data, container) {
     }
   });
 
-  // ─── TOOLBAR: DELETE + EDIT LABEL ──────────────────────────────────────
+  // ─── TOOLBAR ────────────────────────────────────────────────────────
   const toolbar = document.createElement('div');
   toolbar.className = 'toolbar';
 
@@ -249,11 +251,36 @@ function renderFormBlock(type, data, container) {
   const settingsBtn = document.createElement('button');
   settingsBtn.innerHTML = '✏️';
   settingsBtn.title = 'Edit';
+  
+  // Combined settings button handler
   settingsBtn.addEventListener('click', () => {
-    const newLabel = prompt('Enter new label:', data.label);
-    if (newLabel && newLabel.trim()) {
-      data.label = newLabel.trim();
-      rerenderContent();
+    if (type === 'fieldset') {
+      const newLabel = prompt('Enter new label:', data.label);
+      if (newLabel && newLabel.trim()) {
+        data.label = newLabel.trim();
+        if (typeof rerenderContent === 'function') {
+          rerenderContent();
+        }
+      }
+    } else {
+      if (isEditing) {
+        const labelIn = settingsDiv?.querySelector('input[type="text"]');
+        if (labelIn && labelIn.value.trim()) {
+          data.label = labelIn.value.trim();
+        }
+        previewDiv.innerHTML = previewFn(data);
+        labelPreview.textContent = data.label || 'Untitled';
+
+        previewDiv.style.display = 'block';
+        labelPreview.style.display = 'none';
+        settingsDiv.style.display = 'none';
+        isEditing = false;
+      } else {
+        previewDiv.style.display = 'none';
+        labelPreview.style.display = 'block';
+        settingsDiv.style.display = 'block';
+        isEditing = true;
+      }
     }
   });
 
@@ -261,12 +288,11 @@ function renderFormBlock(type, data, container) {
   toolbar.appendChild(deleteBtn);
   block.appendChild(toolbar);
 
-  // ─── CONTENT AREA ──────────────────────────────────────────────────────
+  // ─── CONTENT AREA ────────────────────────────────────────────────────
   const content = document.createElement('div');
   content.className = 'form-content';
 
   if (type === 'fieldset') {
-    // ─── FIELDSET BLOCK ───────────────────────────────────────────────
     const fieldsetEl = document.createElement('fieldset');
     const legendEl = document.createElement('legend');
     legendEl.textContent = data.label || 'Fieldset';
@@ -276,7 +302,6 @@ function renderFormBlock(type, data, container) {
     nestedContainer.className = 'fieldset-children';
     fieldsetEl.appendChild(nestedContainer);
 
-    // ─── CLICK TO SELECT THIS FIELDSET ────────────────────────────────
     fieldsetEl.addEventListener('click', e => {
       if (e.target.closest('button')) return;
       if (selectedFieldset) {
@@ -291,7 +316,6 @@ function renderFormBlock(type, data, container) {
       e.stopPropagation();
     });
 
-    // ─── NESTED DROP: accept everything EXCEPT "fieldset" ────────────
     nestedContainer.addEventListener('dragover', e => {
       e.preventDefault();
       e.stopPropagation();
@@ -312,31 +336,25 @@ function renderFormBlock(type, data, container) {
       
       const nestedData = formData.find(f => f.type === nestedType) || getDefaultData(nestedType);
       
-      // Check if we should create a new row or add to existing one
       const rows = nestedContainer.querySelectorAll('.form-row');
       let targetRow = null;
       
       if (rows.length > 0) {
-        // Find the last row
         const lastRow = rows[rows.length - 1];
-        // If it has less than 2 items, use it
         if (lastRow.querySelectorAll('.form-block').length < 2) {
           targetRow = lastRow;
         }
       }
       
       if (targetRow) {
-        // Add to existing row
         renderFormBlock(nestedType, JSON.parse(JSON.stringify(nestedData)), targetRow);
       } else {
-        // Create new row
         const row = createRowContainer();
         nestedContainer.appendChild(row);
         renderFormBlock(nestedType, JSON.parse(JSON.stringify(nestedData)), row);
       }
     });
 
-    // ─── REHYDRATE ANY EXISTING CHILDREN ───────────────────────────────
     if (Array.isArray(data.children)) {
       data.children.forEach(childData => {
         renderFormBlock(childData.type, childData, nestedContainer);
@@ -350,7 +368,6 @@ function renderFormBlock(type, data, container) {
     }
   }
   else {
-    // ─── NON-FIELDSET (text/checkbox/button/etc.) ─────────────────────
     const fieldContainer = document.createElement('div');
     fieldContainer.className = 'field-container';
     fieldContainer.__data = data;
@@ -381,27 +398,6 @@ function renderFormBlock(type, data, container) {
     settingsDiv.innerHTML = settingsFn ? settingsFn(data) : '';
     let isEditing = false;
 
-    settingsBtn.addEventListener('click', () => {
-      if (isEditing) {
-        const labelIn = settingsDiv.querySelector('input[type="text"]');
-        if (labelIn && labelIn.value.trim()) {
-          data.label = labelIn.value.trim();
-        }
-        previewDiv.innerHTML = previewFn(data);
-        labelPreview.textContent = data.label || 'Untitled';
-
-        previewDiv.style.display = 'block';
-        labelPreview.style.display = 'none';
-        settingsDiv.style.display = 'none';
-        isEditing = false;
-      } else {
-        previewDiv.style.display = 'none';
-        labelPreview.style.display = 'block';
-        settingsDiv.style.display = 'block';
-        isEditing = true;
-      }
-    });
-
     fieldContainer.dataset.mode = 'input';
     fieldContainer.appendChild(previewDiv);
     fieldContainer.appendChild(labelPreview);
@@ -409,7 +405,6 @@ function renderFormBlock(type, data, container) {
     content.appendChild(fieldContainer);
   }
 
-  // ─── CLICKING A NON-FIELDSET BLOCK DESELECTS ANY FIELDSET ────────────
   block.addEventListener('click', e => {
     if (selectedFieldset) {
       selectedFieldset.classList.remove('selected-fieldset');
@@ -425,14 +420,12 @@ function renderFormBlock(type, data, container) {
   container.appendChild(block);
 }
 
-// ─── COLLECT DATA RECURSIVELY FOR JSON EXPORT ──────────────────────────
+// ─── DATA COLLECTION FUNCTIONS ────────────────────────────────────────
 function collectData(container) {
   const result = [];
   
-  // Process all direct children (could be rows or individual blocks)
   container.childNodes.forEach(child => {
     if (child.classList && child.classList.contains('form-row')) {
-      // This is a row - process its children
       const rowChildren = [];
       
       child.querySelectorAll(':scope > .form-block').forEach(block => {
@@ -444,7 +437,6 @@ function collectData(container) {
         rowChildren.push(data);
       });
       
-      // Add the row as a special type
       if (rowChildren.length > 0) {
         result.push({
           type: 'row',
@@ -452,7 +444,6 @@ function collectData(container) {
         });
       }
     } else if (child.classList && child.classList.contains('form-block')) {
-      // Regular block (not in a row)
       const data = JSON.parse(JSON.stringify(child.__data || {}));
       if (data.type === 'fieldset') {
         const nested = child.querySelector('.fieldset-children');
@@ -465,13 +456,11 @@ function collectData(container) {
   return result;
 }
 
-// ─── COLLECT HTML RECURSIVELY FOR HTML EXPORT ─────────────────────────
 function collectHTML(container) {
   let html = '';
   
   container.childNodes.forEach(child => {
     if (child.classList && child.classList.contains('form-row')) {
-      // Process row
       html += '<div class="form-row">\n';
       
       child.querySelectorAll(':scope > .form-block').forEach(block => {
@@ -491,7 +480,6 @@ function collectHTML(container) {
       
       html += '</div>\n';
     } else if (child.classList && child.classList.contains('form-block')) {
-      // Process regular block
       const data = child.__data || {};
       if (data.type === 'fieldset') {
         const legendText = child.querySelector('legend').textContent;
@@ -510,7 +498,7 @@ function collectHTML(container) {
   return html;
 }
 
-// ─── BUTTON LISTENERS: JSON, HTML, CLEAR ───────────────────────────────
+// ─── BUTTON LISTENERS ────────────────────────────────────────────────
 jsonButton.addEventListener('click', () => {
   const data = collectData(main);
   sharedOutput.textContent = JSON.stringify(data, null, 2);
@@ -528,7 +516,7 @@ clearButton.addEventListener('click', () => {
   selectedFieldset = null;
 });
 
-// ─── MAIN CANVAS DRAG-MOVE ─────────────────────────────────────────────
+// ─── MAIN CANVAS DRAG-MOVE ──────────────────────────────────────────
 const mainEl = document.getElementById('form-canvas');
 let isDraggingMain = false;
 let startX, startY;
@@ -569,3 +557,4 @@ function pointerUpHandler(e) {
   window.removeEventListener('pointerup', pointerUpHandler);
   window.removeEventListener('pointercancel', pointerUpHandler);
 }
+
