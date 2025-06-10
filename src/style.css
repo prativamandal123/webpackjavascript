@@ -313,7 +313,7 @@ body {
 
 .fieldset-children {
   min-height: 40px;
-  border: none;
+  border: none !important;
   padding: 5px;
   margin-top: 10px;
 }
