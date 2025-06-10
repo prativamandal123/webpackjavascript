@@ -19,7 +19,7 @@ export function AutocompleteSettings(data = {}) {
   const values = data.values || [];
   const id = `options-${Date.now()}`;
 
-  // Initial options HTML with delete buttons
+ 
   const optionsHTML = values.map((v) => `
     <div class="option-item">
        <input type="text" placeholder="Label" value="${v.label}" />
@@ -33,7 +33,7 @@ export function AutocompleteSettings(data = {}) {
     const wrapper = document.querySelector(`#${id}`);
 
     if (addBtn && wrapper) {
-      // Add new option
+      //Add new option
       addBtn.addEventListener('click', () => {
         const div = document.createElement('div');
         div.className = 'option-item';
@@ -45,7 +45,7 @@ export function AutocompleteSettings(data = {}) {
         wrapper.appendChild(div);
       });
 
-      // event delegation to handle delete clicks
+      
       wrapper.addEventListener('click', (e) => {
         if (e.target.classList.contains('delete-option')) {
           const parent = e.target.closest('.option-item');

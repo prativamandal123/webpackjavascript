@@ -1,4 +1,3 @@
-// Fieldset.js
 export function fieldset(data) {
  const label = data.label || 'Fieldset';
   return `

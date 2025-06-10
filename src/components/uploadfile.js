@@ -1,4 +1,3 @@
-// Rendered File Upload Input (shown on the form canvas)
 export function UploadFile(data = {}) {
   const name = data.name || `upload-${Date.now()}`;
   const label = data.label || 'Upload File';
@@ -12,7 +11,6 @@ export function UploadFile(data = {}) {
   `;
 }
 
-// Extended Settings Panel for File Upload
 export function UploadFileSettings(data = {}) {
   return `
     <div class="form-settings">

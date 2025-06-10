@@ -1,4 +1,3 @@
-// Rendered Date Input UI (shown on the form canvas)
 export function DateField(data = {}) {
   const name = data.name || `datefield-${Date.now()}`;
   const label = data.label || 'Date Field';
@@ -11,7 +10,7 @@ export function DateField(data = {}) {
   `;
 }
 
-// Extended Settings Panel
+
 export function DateFieldSettings(data = {}) {
   return `
     <div class="form-settings">
