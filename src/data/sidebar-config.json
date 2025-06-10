@@ -1,11 +1,33 @@
 [
-  { "label": "Autocomplete", "type": "autocomplete"},
-  { "label": "Button", "type": "button" },
-  { "label": "Checkbox Group", "type": "checkbox" },
-  { "label": "Date Field", "type": "datefield" },
-  { "label": "Upload File", "type": "uploadfile" },
-  { "label": "Header", "type": "header" },
-  {"label": "Fieldset","type":"fieldset"}
+  {
+    "label": "basic form",
+    "type": "fieldset",
+    "children": [
+      { "label": "Autocomplete", "type": "autocomplete" },
+      { "label": "Button", "type": "button" },
+      { "label": "Checkbox Group", "type": "checkbox" },
+      { "label": "Date Field", "type": "datefield" },
+      { "label": "Upload File", "type": "uploadfile" },
+      { "label": "Header", "type": "header" }
+    ]
+  },
+  { "label": "container",
+   "type": "container" ,
+   "children":[
+    { "label": "Fieldset", "type": "fieldset" }
+   ]
+  },
+  {
+    "label": "input fields",
+    "type": "fieldset",
+    "children": [
+      { "label": "Autocomplete1", "type": "autocomplete"},
+      { "label": "Button1", "type": "button" },
+      { "label": "Checkbox Group1", "type": "checkbox" },
+      { "label": "Date Field1", "type": "datefield" },
+      { "label": "Upload File1", "type": "uploadfile" },
+      { "label": "Header1", "type": "header" }
+    ]
+  }
+
 ]
-
-

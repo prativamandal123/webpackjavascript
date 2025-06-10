@@ -19,7 +19,7 @@ body {
   box-shadow: 2px 0 5px rgba(0,0,0,0.05);
 }
 
-.sidebar-item {
+/* .sidebar-item {
   padding: 10px 12px;
   background-color: #f8f9fa;
   border: 1px solid #ccc;
@@ -27,10 +27,67 @@ body {
   cursor: grab;
   border-radius: 5px;
   transition: background-color 0.2s;
-}
-.sidebar-item:hover {
+} */
+/* .sidebar-item:hover {
   background-color: #e2e6ea;
+} */
+/* .sidebar-children-container {
+  display: none;
+  margin-top: 5px;
+} */
+
+.sidebar-item {
+  padding: 8px;
+  margin: 2px 0;
+  background: #f0f0f0;
+  border-radius: 4px;
+  cursor: pointer;
 }
+
+.sidebar-item:hover {
+  background: #e0e0e0;
+}
+
+.sidebar-children-container {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.sidebar-child-item {
+  padding: 6px 6px 6px 24px; /* Left padding to align with parent text */
+  margin: 2px 0;
+  background: #f5f5f5;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.sidebar-child-item:hover {
+  background: #e0e0e0;
+}
+
+.sidebar-parent-container {
+  margin-bottom: 5px;
+}
+
+.sidebar-parent-item {
+  font-weight: bold;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+
+.toggle-icon {
+  transition: transform 0.2s ease;
+  font-size: 0.8em;
+  margin-right: 8px;
+}
+
+
+
+
+
 .main-wrapper {
   display: flex;
   flex-direction: column;
@@ -131,16 +188,13 @@ body {
 .fieldset-block {
   flex: 1;
   min-width: 200px;
-  /* border: 1px solid #ddd; */
-  /* border-radius: 8px; */
-  padding: 15px;
+   padding: 15px;
   background:transparent;
    border: none !important;      
   box-shadow: none !important; 
  
 }
 
-/* Make fieldsets in a row take equal space */
 .form-row > .form-block {
   flex: 1;
 }
@@ -305,21 +359,16 @@ body {
   background-color: rgba(0, 120, 255, 0.05);
 }
 
-/* .selected-fieldset {
-  border: 2px solid #0078ff !important;
-  background-color: rgba(0, 120, 255, 0.05);
-} */
+
 
 .fieldset-children {
   min-height: 40px;
-  border: none;
+  border: none !important;
   padding: 5px;
   margin-top: 10px;
 }
 
-/* .selected-fieldset .fieldset-children {
-  border-color: #0078ff;
-} */
+
 
 .fieldset-children .form-row {
   width: 100%;
@@ -339,3 +388,4 @@ body {
   flex: 1;
   margin-bottom: 0;
 }
+

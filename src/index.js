@@ -47,6 +47,21 @@ appContainer.appendChild(mainWrapper);
 document.body.appendChild(appContainer);
 
 function getDefaultData(type) {
+  if (type === 'input-fields') {
+    return {
+      type: 'fieldset',
+      label: 'Input Fields',
+      children: [
+        getDefaultData('autocomplete'),
+        getDefaultData('button'),
+        getDefaultData('checkbox'),
+        getDefaultData('datefield'),
+        getDefaultData('uploadfile'),
+        getDefaultData('header')
+      ]
+    };
+  }
+  
   return {
     type,
     label: type.charAt(0).toUpperCase() + type.slice(1),
@@ -61,26 +76,88 @@ let currentDropTarget = main;
 let selectedFieldset = null;
 let dragSrcEl = null;
 
-//Sidebar items 
+//Sidebar items(tree str)
 sidebarItems.forEach(item => {
-  const el = document.createElement('div');
-  el.className = 'sidebar-item';
-  el.textContent = (item.icon || '') + ' ' + item.label;
-  el.dataset.type = item.type;
-  el.setAttribute('draggable', 'true');
-
-  el.addEventListener('dragstart', e => {
-    e.dataTransfer.setData('type', item.type);
-  });
-
-  el.addEventListener('click', () => {
-    const data = formData.find(f => f.type === item.type) || getDefaultData(item.type);
-    renderFormBlock(item.type, JSON.parse(JSON.stringify(data)), currentDropTarget);
-  });
-
-  sidebar.appendChild(el);
+  if (item.children) {
+    const parentContainer = document.createElement('div');
+    parentContainer.className = 'sidebar-parent-container';
+    
+    const parentEl = document.createElement('div');
+    parentEl.className = 'sidebar-parent-item';
+    
+    const toggleIcon = document.createElement('span');
+    toggleIcon.className = 'toggle-icon';
+    toggleIcon.textContent = '▶'; 
+    toggleIcon.style.marginRight = '5px';
+    toggleIcon.style.cursor = 'pointer';
+    
+    const label = document.createElement('span');
+    label.textContent = item.label;
+    label.style.cursor = 'pointer';
+    
+    parentEl.appendChild(toggleIcon);
+    parentEl.appendChild(label);
+    parentEl.dataset.type = item.type;
+    
+    const childrenContainer = document.createElement('div');
+    childrenContainer.className = 'sidebar-children-container';
+    childrenContainer.style.display = 'none'; 
+    
+    item.children.forEach(child => {
+      const childEl = document.createElement('div');
+      childEl.className = 'sidebar-child-item';
+      childEl.textContent = child.label;
+      childEl.dataset.type = child.type;
+      childEl.setAttribute('draggable', 'true');
+      
+      childEl.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('type', child.type);
+      });
+      
+      childEl.addEventListener('click', () => {
+        const data = formData.find(f => f.type === child.type) || getDefaultData(child.type);
+        renderFormBlock(child.type, JSON.parse(JSON.stringify(data)), currentDropTarget);
+      });
+      
+      childrenContainer.appendChild(childEl);
+    });
+    
+    
+    const toggleChildren = () => {
+      const isHidden = childrenContainer.style.display === 'none';
+      childrenContainer.style.display = isHidden ? 'block' : 'none';
+      toggleIcon.textContent = isHidden ? '▼' : '▶';
+    };
+    
+    parentEl.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('sidebar-child-item')) {
+        toggleChildren();
+      }
+    });
+    
+    parentContainer.appendChild(parentEl);
+    parentContainer.appendChild(childrenContainer);
+    sidebar.appendChild(parentContainer);
+  } else {
+    
+    const el = document.createElement('div');
+    el.className = 'sidebar-item';
+    el.textContent = item.label;
+    el.dataset.type = item.type;
+    el.setAttribute('draggable', 'true');
+    
+    el.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('type', item.type);
+    });
+    
+    el.addEventListener('click', () => {
+      const data = formData.find(f => f.type === item.type) || getDefaultData(item.type);
+      renderFormBlock(item.type, JSON.parse(JSON.stringify(data)), currentDropTarget);
+    });
+    
+    sidebar.appendChild(el);
+  }
 });
-
 
 function setupDropTarget(container) {
   container.addEventListener('dragover', e => {
