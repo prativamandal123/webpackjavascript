@@ -53,14 +53,15 @@ function getDefaultData(type) {
     values: [],
     name: `${type}-${Date.now()}`,
     required: false,
-    children: [] // for fieldset to hold nested blocks
+    children: []
   };
 }
 
-let currentDropTarget = main; // Where new blocks get added on click or drop (main or selected fieldset)
+let currentDropTarget = main;
 let selectedFieldset = null;
+let dragSrcEl = null;
 
-// Sidebar items creation & click + dragstart
+// Sidebar items creation
 sidebarItems.forEach(item => {
   const el = document.createElement('div');
   el.className = 'sidebar-item';
@@ -74,43 +75,38 @@ sidebarItems.forEach(item => {
 
   el.addEventListener('click', () => {
     const data = formData.find(f => f.type === item.type) || getDefaultData(item.type);
-    // Add block either inside selected fieldset or main
     renderFormBlock(item.type, JSON.parse(JSON.stringify(data)), currentDropTarget);
   });
 
   sidebar.appendChild(el);
 });
 
-// Make container main a drop target for form blocks
+// Drop target setup
 function setupDropTarget(container) {
   container.addEventListener('dragover', e => {
     e.preventDefault();
     container.classList.add('drag-over');
   });
+
   container.addEventListener('dragleave', e => {
     container.classList.remove('drag-over');
   });
+
   container.addEventListener('drop', e => {
-  e.preventDefault();
-  container.classList.remove('drag-over');
-  const type = e.dataTransfer.getData('type');
-  if (!type) return;
+    e.preventDefault();
+    container.classList.remove('drag-over');
+    const type = e.dataTransfer.getData('type');
+    if (!type) return;
 
-  // Prevent dropping a fieldset inside a fieldset's children container
-  if (type === 'fieldset' && container.classList.contains('fieldset-children')) {
-    // alert('Nesting fieldsets is not allowed!');
-    return; // Reject drop
-  }
+    if (type === 'fieldset' && container.classList.contains('fieldset-children')) {
+      return;
+    }
 
-  const data = formData.find(f => f.type === type) || getDefaultData(type);
-  renderFormBlock(type, JSON.parse(JSON.stringify(data)), container);
-});
-
+    const data = formData.find(f => f.type === type) || getDefaultData(type);
+    renderFormBlock(type, JSON.parse(JSON.stringify(data)), container);
+  });
 }
 setupDropTarget(main);
-
-// Track drag source element for reorder
-let dragSrcEl = null;
 
 function renderFormBlock(type, data, container) {
   const block = document.createElement('div');
@@ -120,14 +116,27 @@ function renderFormBlock(type, data, container) {
   // Store data on element for export
   block.__data = data;
 
-  // Drag and drop reorder within the container
+  // Drag events for reordering
   block.addEventListener('dragstart', (e) => {
     dragSrcEl = block;
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', block.innerHTML);
+    e.stopPropagation();
   });
 
   block.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    block.classList.add('drag-over-reorder');
+    e.stopPropagation();
+  });
+
+  block.addEventListener('dragleave', (e) => {
+    block.classList.remove('drag-over-reorder');
+    e.stopPropagation();
+  });
+
+  block.addEventListener('drop', (e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     block.classList.add('drag-over-reorder');
@@ -155,7 +164,7 @@ function renderFormBlock(type, data, container) {
     return false;
   });
 
-  // Toolbar with delete and (conditionally) edit buttons
+  // Toolbar
   const toolbar = document.createElement('div');
   toolbar.className = 'toolbar';
 
@@ -167,7 +176,6 @@ function renderFormBlock(type, data, container) {
     block.remove();
   });
 
-  // Add edit button ONLY if NOT a fieldset
   if (type !== 'fieldset') {
     const settingsBtn = document.createElement('button');
     settingsBtn.innerHTML = '✏️';
@@ -213,7 +221,6 @@ function renderFormBlock(type, data, container) {
 
     settingsBtn.addEventListener('click', () => {
       if (isEditing) {
-        // Save label
         const labelInput = settingsDiv.querySelector('input[type="text"]');
         if (labelInput && labelInput.value.trim()) {
           data.label = labelInput.value.trim();
@@ -247,14 +254,12 @@ function renderFormBlock(type, data, container) {
     return;
   }
 
-  // For fieldset type - no edit button
+  // Fieldset specific rendering
   if (type === 'fieldset') {
-    // Fieldset container with legend label + nested blocks container
     block.classList.add('fieldset-block');
 
-    // Allow click selection of fieldset to add blocks inside
     block.addEventListener('click', (e) => {
-      if (e.target.closest('button')) return; // ignore clicks on buttons
+      if (e.target.closest('button')) return;
       if (selectedFieldset) {
         selectedFieldset.classList.remove('selected-fieldset');
       }
@@ -264,40 +269,33 @@ function renderFormBlock(type, data, container) {
       e.stopPropagation();
     });
 
-    // Legend label - editable via settings (not shown here, no edit btn)
     const legend = document.createElement('legend');
     legend.textContent = data.label || 'Fieldset';
 
-    // Nested children container inside fieldset
     const nestedContainer = document.createElement('div');
     nestedContainer.className = 'fieldset-children';
     nestedContainer.style.minHeight = '40px';
-    nestedContainer.style.border = '';
+    nestedContainer.style.border = '1px dashed #ccc';
     nestedContainer.style.padding = '5px';
     nestedContainer.style.marginTop = '10px';
 
-    // Setup nested drop target
     setupDropTarget(nestedContainer);
 
-    // Render any children recursively if data.children exists
     if (Array.isArray(data.children)) {
       data.children.forEach(childData => {
         renderFormBlock(childData.type, childData, nestedContainer);
       });
     }
 
-    // Append children container inside fieldset element
     const fieldsetEl = document.createElement('fieldset');
     fieldsetEl.appendChild(legend);
     fieldsetEl.appendChild(nestedContainer);
 
     const content = document.createElement('div');
     content.className = 'form-content';
-
     content.appendChild(fieldsetEl);
 
     toolbar.appendChild(deleteBtn);
-
     block.appendChild(toolbar);
     block.appendChild(content);
 
@@ -305,7 +303,6 @@ function renderFormBlock(type, data, container) {
   }
 }
 
-// Utility to recursively collect form data from container and nested children
 function collectData(container) {
   const blocks = container.querySelectorAll(':scope > .form-block');
   const result = [];
@@ -313,7 +310,6 @@ function collectData(container) {
   blocks.forEach(block => {
     const data = JSON.parse(JSON.stringify(block.__data || {}));
     if (data.type === 'fieldset') {
-      // Recursively collect children from fieldset-children container
       const nestedContainer = block.querySelector('.fieldset-children');
       if (nestedContainer) {
         data.children = collectData(nestedContainer);
@@ -325,7 +321,6 @@ function collectData(container) {
   return result;
 }
 
-// Utility to recursively collect HTML from container (only preview view)
 function collectHTML(container) {
   const blocks = container.querySelectorAll(':scope > .form-block');
   let html = '';
@@ -338,7 +333,6 @@ function collectHTML(container) {
       const nestedHtml = nestedContainer ? collectHTML(nestedContainer) : '';
       html += `<fieldset><legend>${legend}</legend>${nestedHtml}</fieldset>\n`;
     } else {
-      // For normal blocks, extract the preview-view innerHTML
       const previewDiv = block.querySelector('.preview-view');
       if (previewDiv) {
         html += previewDiv.innerHTML + '\n';
@@ -367,7 +361,7 @@ clearButton.addEventListener('click', () => {
   currentDropTarget = main;
 });
 
-// Main container dragging code (unchanged)
+// Main container dragging
 const mainEl = document.getElementById('form-canvas');
 
 let isDraggingMain = false;
