@@ -1,5 +1,5 @@
 [
-  { "label": "Autocomplete", "type": "autocomplete" },
+  { "label": "Autocomplete", "type": "autocomplete"},
   { "label": "Button", "type": "button" },
   { "label": "Checkbox Group", "type": "checkbox" },
   { "label": "Date Field", "type": "datefield" },
