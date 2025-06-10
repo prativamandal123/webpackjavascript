@@ -1,5 +1,5 @@
 export function Header(data = {}) {
-  const level = data.type || 'h2'; // Use data.type instead of data.level to match your JSON
+  const level = data.type || 'h2'; 
   const label = data.label || 'Header';
 
   return `

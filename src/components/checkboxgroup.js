@@ -1,4 +1,3 @@
-// Rendered Checkbox Input UI (shown on the form canvas)
 export function Checkbox(data = {}) {
   const name = data.name || `checkbox-group-${Date.now()}`;
 
@@ -13,7 +12,6 @@ export function Checkbox(data = {}) {
 }
 
 
-
 // Extended Settings Panel
 export function CheckboxSettings(data = {}) {
   const values = data.values || [];
@@ -26,7 +24,7 @@ export function CheckboxSettings(data = {}) {
     </div>
   `).join('');
 
-  //timeout to allow DOM to be ready before attaching event
+  
   setTimeout(() => {
     const addBtn = document.querySelector(`#${id}-btn`);
     const wrapper = document.querySelector(`#${id}`);

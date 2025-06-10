@@ -61,7 +61,7 @@ let currentDropTarget = main;
 let selectedFieldset = null;
 let dragSrcEl = null;
 
-// Sidebar items creation
+//Sidebar items 
 sidebarItems.forEach(item => {
   const el = document.createElement('div');
   el.className = 'sidebar-item';
@@ -81,7 +81,7 @@ sidebarItems.forEach(item => {
   sidebar.appendChild(el);
 });
 
-// Drop target setup
+
 function setupDropTarget(container) {
   container.addEventListener('dragover', e => {
     e.preventDefault();
@@ -112,11 +112,9 @@ function renderFormBlock(type, data, container) {
   const block = document.createElement('div');
   block.className = 'form-block';
   block.setAttribute('draggable', 'true');
-
-  // Store data on element for export
   block.__data = data;
 
-  // Drag events for reordering
+  // Drag event for reordering
   block.addEventListener('dragstart', (e) => {
     dragSrcEl = block;
     e.dataTransfer.effectAllowed = 'move';
@@ -164,7 +162,7 @@ function renderFormBlock(type, data, container) {
     return false;
   });
 
-  // Toolbar
+  //Toolbar
   const toolbar = document.createElement('div');
   toolbar.className = 'toolbar';
 
@@ -343,7 +341,6 @@ function collectHTML(container) {
   return html;
 }
 
-// Button listeners
 jsonButton.addEventListener('click', () => {
   const data = collectData(main);
   sharedOutput.textContent = JSON.stringify(data, null, 2);
@@ -361,9 +358,7 @@ clearButton.addEventListener('click', () => {
   currentDropTarget = main;
 });
 
-// Main container dragging
 const mainEl = document.getElementById('form-canvas');
-
 let isDraggingMain = false;
 let startX, startY;
 let origX = 0, origY = 0;

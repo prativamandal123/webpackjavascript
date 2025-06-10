@@ -269,7 +269,7 @@ body {
   min-width: 140px;
   cursor: pointer;
 }
-/* Green buttons */
+
 .generate-json-btn,
 .generate-html-btn {
   background-color: #28a745;
@@ -280,7 +280,6 @@ body {
   background-color: #218838;
 }
 
-/* Red button for clear */
 .clear-btn {
   background-color: #dc3545;
   color: white;
@@ -290,7 +289,7 @@ body {
   background-color: #c82333;
 }
 
-/*8preview label*/
+
 .label-only-preview {
   font-weight: bold;
   padding: 4px 0;
@@ -322,7 +321,6 @@ body {
   border-color: #0078ff;
 } */
 
-/* Fieldset children specific styles */
 .fieldset-children .form-row {
   width: 100%;
   display: flex;
