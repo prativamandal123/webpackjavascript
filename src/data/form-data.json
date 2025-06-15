@@ -1,4 +1,8 @@
 [
+   {
+    "label": "MyController",
+    "children": []
+  },
   {
     "type": "autocomplete",
     "required": false,

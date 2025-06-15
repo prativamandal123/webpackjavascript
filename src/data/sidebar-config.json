@@ -28,6 +28,12 @@
       { "label": "Upload File1", "type": "uploadfile" },
       { "label": "Header1", "type": "header" }
     ]
+  },
+   {
+    "label": "MyController",
+    "type": "controller",
+    "icon": "📁",
+    "children": []
   }
 
 ]
