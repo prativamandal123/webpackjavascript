@@ -1,6 +1,6 @@
 [
   {
-    "label": "basic form",
+    "label": "Basic Controller",
     "type": "fieldset",
     "children": [
       { "label": "Autocomplete", "type": "autocomplete" },
@@ -11,14 +11,14 @@
       { "label": "Header", "type": "header" }
     ]
   },
-  { "label": "container",
+  { "label": "Container",
    "type": "container" ,
    "children":[
     { "label": "Fieldset", "type": "fieldset" }
    ]
   },
   {
-    "label": "input fields",
+    "label": "User Controller",
     "type": "fieldset",
     "children": [
       { "label": "Autocomplete1", "type": "autocomplete"},

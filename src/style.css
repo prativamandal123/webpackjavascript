@@ -17,24 +17,11 @@ body {
   padding: 15px;
   overflow-y: auto;
   box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  height: 95%;
 }
 
-/* .sidebar-item {
-  padding: 10px 12px;
-  background-color: #f8f9fa;
-  border: 1px solid #ccc;
-  margin-bottom: 10px;
-  cursor: grab;
-  border-radius: 5px;
-  transition: background-color 0.2s;
-} */
-/* .sidebar-item:hover {
-  background-color: #e2e6ea;
-} */
-/* .sidebar-children-container {
-  display: none;
-  margin-top: 5px;
-} */
 
 .sidebar-item {
   padding: 8px;
@@ -54,7 +41,7 @@ body {
 }
 
 .sidebar-child-item {
-  padding: 6px 6px 6px 24px; /* Left padding to align with parent text */
+  padding: 6px 6px 6px 24px; 
   margin: 2px 0;
   background: #f5f5f5;
   border-radius: 4px;
@@ -85,9 +72,6 @@ body {
 }
 
 
-
-
-
 .main-wrapper {
   display: flex;
   flex-direction: column;
@@ -98,7 +82,7 @@ body {
   border: 2px dashed #ccc;
   border-radius: 6px;
   padding: 10px;
-  min-height: 400px; 
+  min-height: 530px; 
   overflow-y: auto;
   background: #fff; 
 }
@@ -300,7 +284,7 @@ body {
   background: #f9f9f9;
   padding: 10px;
   margin-top: 10px;
-  min-height: 150px;
+  min-height: 215px;
   font-family: monospace;
   overflow-y: auto;
 }
@@ -360,14 +344,12 @@ body {
 }
 
 
-
 .fieldset-children {
   min-height: 40px;
   border: none !important;
   padding: 5px;
   margin-top: 10px;
 }
-
 
 
 .fieldset-children .form-row {
@@ -389,5 +371,67 @@ body {
   margin-bottom: 0;
 }
 
+/*tab*/
+
+/* Sidebar Toggle Container */
+.sidebar-toggle-container {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  background: #ffffff;
+  border-top: 1px solid #e0e0e0;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  margin-top: auto; 
+}
 
 
+.sidebar-toggle-btn {
+  flex: 1;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.sidebar-toggle-btn:nth-child(1) {
+  background-color: #4a6fa5;
+  border: 1px solid #3a5a8c;
+}
+/* 
+.sidebar-toggle-btn:nth-child(1):hover {
+  background-color: #3a5a8c;
+} */
+
+/* Second Button - Gray */
+.sidebar-toggle-btn:nth-child(2) {
+  background-color: #6c757d;
+  border: 1px solid #5a6268;
+}
+
+/* .sidebar-toggle-btn:nth-child(2):hover {
+  background-color: #5a6268;
+} */
+
+
+/* Icon Styling */
+.sidebar-toggle-btn svg {
+  flex-shrink: 0;
+}
+
+/* Sidebar Layout */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 95%;
+}
