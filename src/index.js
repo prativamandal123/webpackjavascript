@@ -29,7 +29,6 @@ const sidebarToggleButton2 = document.createElement('button');
 sidebarToggleButton2.textContent = 'get sidebar2';
 sidebarToggleButton2.className = 'sidebar-toggle-btn';
 
-
 sidebarToggleContainer.appendChild(sidebarToggleButton1);
 sidebarToggleContainer.appendChild(sidebarToggleButton2);
 
@@ -59,11 +58,9 @@ mainWrapper.className = 'main-wrapper';
 mainWrapper.appendChild(main);
 mainWrapper.appendChild(jsonBar);
 
-
 appContainer.appendChild(sidebar);
 appContainer.appendChild(mainWrapper);
 document.body.appendChild(appContainer);
-
 
 let myControllerItem = null;
 
@@ -96,7 +93,6 @@ function getDefaultData(type) {
 let currentDropTarget = main;
 let selectedFieldset = null;
 let dragSrcEl = null;
-
 
 let sidebar1Items = sidebarItems.filter(item => item.type !== 'controller');
 let sidebar2Items = sidebarItems.filter(item => item.type === 'controller');
@@ -183,10 +179,7 @@ function renderSidebar1() {
     }
   });
   
- 
   sidebar.appendChild(sidebarToggleContainer);
-  
-  
   sidebarToggleButton1.classList.add('active');
   sidebarToggleButton2.classList.remove('active');
 }
@@ -240,18 +233,13 @@ function renderSidebar2() {
     updateSidebarController();
   }
   
- 
   sidebar.appendChild(sidebarToggleContainer);
-  
- 
   sidebarToggleButton2.classList.add('active');
   sidebarToggleButton1.classList.remove('active');
 }
 
-
 sidebarToggleButton1.addEventListener('click', renderSidebar1);
 sidebarToggleButton2.addEventListener('click', renderSidebar2);
-
 
 renderSidebar1();
 
@@ -283,60 +271,81 @@ setupDropTarget(main);
 
 function updateControllerItems() {
   if (!myControllerItem) return;
- 
+  
   myControllerItem.children = [];
+  
+  // First add the top-level items (not in fieldsets)
+  const topLevelItems = main.querySelectorAll(':scope > .form-block:not(.fieldset-block)');
+  topLevelItems.forEach((item, index) => {
+    const type = item.__data.type;
+    const label = item.__data.label || type;
+    const name = item.__data.name || `${type}-${index}`;
+    
+    myControllerItem.children.push({
+      label: label,
+      type: type,
+      id: name
+    });
+    
+    if (!item.__data.name) {
+      item.__data.name = name;
+    }
+  });
+  
+  // Then add the fieldsets and their children
   const fieldsets = main.querySelectorAll('.fieldset-block');
- 
   fieldsets.forEach((fieldset, index) => {
     const fieldsetData = fieldset.__data;
     const fieldsetId = fieldsetData.name || `fieldset-${index}`;
-   
+    
     const fieldsetEntry = {
       type: 'fieldset',
       label: fieldsetData.label || `Fieldset ${index + 1}`,
       id: fieldsetId,
       children: []
     };
-   
+    
     const nestedContainer = fieldset.querySelector('.fieldset-children');
     if (nestedContainer) {
       const children = nestedContainer.querySelectorAll('.form-block');
-     
+      
       children.forEach(child => {
         const type = child.__data.type;
         const label = child.__data.label || type;
         const name = child.__data.name || `${type}-${Date.now()}`;
-       
+        
         fieldsetEntry.children.push({
           label: label,
           type: type,
           id: name
         });
-       
+        
         if (!child.__data.name) {
           child.__data.name = name;
         }
       });
     }
-   
+    
     myControllerItem.children.push(fieldsetEntry);
   });
- 
+  
   updateSidebarController();
 }
 
 function updateSidebarController() {
   const controllerParent = document.querySelector('.sidebar-parent-item[data-type="controller"]');
   if (!controllerParent) return;
- 
- 
+  
+  // Save open states
   const openStates = {};
-  const existingContainers = document.querySelectorAll('.controller-fieldset-container');
+  const existingContainers = document.querySelectorAll('.controller-fieldset-container, .controller-top-level-item');
   existingContainers.forEach(container => {
-    const header = container.querySelector('.controller-fieldset-header');
-    const childrenContainer = container.querySelector('.controller-fieldset-children');
-    if (header && childrenContainer) {
-      openStates[header.dataset.id] = childrenContainer.style.display !== 'none';
+    if (container.classList.contains('controller-fieldset-container')) {
+      const header = container.querySelector('.controller-fieldset-header');
+      const childrenContainer = container.querySelector('.controller-fieldset-children');
+      if (header && childrenContainer) {
+        openStates[header.dataset.id] = childrenContainer.style.display !== 'none';
+      }
     }
   });
 
@@ -346,117 +355,157 @@ function updateSidebarController() {
     childrenContainer.className = 'sidebar-children-container';
     controllerParent.parentNode.appendChild(childrenContainer);
   }
- 
+  
   childrenContainer.innerHTML = '';
- 
-  myControllerItem.children.forEach(fieldset => {
-    const fieldsetContainer = document.createElement('div');
-    fieldsetContainer.className = 'controller-fieldset-container';
-   
-    const fieldsetHeader = document.createElement('div');
-    fieldsetHeader.className = 'controller-fieldset-header';
-    fieldsetHeader.setAttribute('draggable', 'true');
-    fieldsetHeader.dataset.id = fieldset.id;
-   
-    const toggleIcon = document.createElement('span');
-    toggleIcon.className = 'toggle-icon';
-    toggleIcon.textContent = '▶';
-    toggleIcon.style.marginRight = '5px';
-    toggleIcon.style.cursor = 'pointer';
-   
-    const fieldsetLabel = document.createElement('span');
-    fieldsetLabel.textContent = fieldset.label;
-    fieldsetLabel.style.cursor = 'pointer';
-   
-    fieldsetHeader.appendChild(toggleIcon);
-    fieldsetHeader.appendChild(fieldsetLabel);
-   
-    const fieldsetChildrenContainer = document.createElement('div');
-    fieldsetChildrenContainer.className = 'controller-fieldset-children';
-    fieldsetChildrenContainer.style.display = 'none';
-   
-    if (openStates[fieldset.id]) {
-      fieldsetChildrenContainer.style.display = 'block';
-      toggleIcon.textContent = '▼';
-    }
-   
-    fieldset.children.forEach(child => {
-      const childEl = document.createElement('div');
-      childEl.className = 'sidebar-child-item';
-      childEl.textContent = child.label;
-      childEl.dataset.type = child.type;
-      childEl.dataset.id = child.id;
-      childEl.style.paddingLeft = '20px';
-      childEl.setAttribute('draggable', 'true');
-     
-      childEl.addEventListener('dragstart', e => {
-        e.dataTransfer.setData('controller-item', child.id);
+  
+  myControllerItem.children.forEach(item => {
+    if (item.type === 'fieldset') {
+      // Handle fieldset items
+      const fieldsetContainer = document.createElement('div');
+      fieldsetContainer.className = 'controller-fieldset-container';
+      
+      const fieldsetHeader = document.createElement('div');
+      fieldsetHeader.className = 'controller-fieldset-header';
+      fieldsetHeader.setAttribute('draggable', 'true');
+      fieldsetHeader.dataset.id = item.id;
+      
+      const toggleIcon = document.createElement('span');
+      toggleIcon.className = 'toggle-icon';
+      toggleIcon.textContent = '▶';
+      toggleIcon.style.marginRight = '5px';
+      toggleIcon.style.cursor = 'pointer';
+      
+      const fieldsetLabel = document.createElement('span');
+      fieldsetLabel.textContent = item.label;
+      fieldsetLabel.style.cursor = 'pointer';
+      
+      fieldsetHeader.appendChild(toggleIcon);
+      fieldsetHeader.appendChild(fieldsetLabel);
+      
+      const fieldsetChildrenContainer = document.createElement('div');
+      fieldsetChildrenContainer.className = 'controller-fieldset-children';
+      fieldsetChildrenContainer.style.display = 'none';
+      
+      if (openStates[item.id]) {
+        fieldsetChildrenContainer.style.display = 'block';
+        toggleIcon.textContent = '▼';
+      }
+      
+      item.children.forEach(child => {
+        const childEl = document.createElement('div');
+        childEl.className = 'sidebar-child-item';
+        childEl.textContent = child.label;
+        childEl.dataset.type = child.type;
+        childEl.dataset.id = child.id;
+        childEl.style.paddingLeft = '20px';
+        childEl.setAttribute('draggable', 'true');
+        
+        childEl.addEventListener('dragstart', e => {
+          e.dataTransfer.setData('controller-item', child.id);
+          e.target.classList.add('dragging');
+        });
+        
+        childEl.addEventListener('dragend', e => {
+          e.target.classList.remove('dragging');
+        });
+        
+        childEl.addEventListener('click', () => {
+          highlightFormElement(child.id, child.type, child.label);
+        });
+        
+        fieldsetChildrenContainer.appendChild(childEl);
+      });
+      
+      const toggleChildren = () => {
+        const isHidden = fieldsetChildrenContainer.style.display === 'none';
+        fieldsetChildrenContainer.style.display = isHidden ? 'block' : 'none';
+        toggleIcon.textContent = isHidden ? '▼' : '▶';
+      };
+      
+      fieldsetHeader.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('sidebar-child-item')) {
+          toggleChildren();
+        }
+      });
+      
+      fieldsetHeader.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('controller-fieldset', item.id);
+        e.target.classList.add('dragging-fieldset');
+      });
+      
+      fieldsetHeader.addEventListener('dragend', (e) => {
+        e.target.classList.remove('dragging-fieldset');
+      });
+      
+      fieldsetContainer.appendChild(fieldsetHeader);
+      fieldsetContainer.appendChild(fieldsetChildrenContainer);
+      childrenContainer.appendChild(fieldsetContainer);
+    } else {
+      // Handle top-level items
+      const topLevelItem = document.createElement('div');
+      topLevelItem.className = 'controller-top-level-item';
+      topLevelItem.setAttribute('draggable', 'true');
+      topLevelItem.dataset.id = item.id;
+      
+      const itemLabel = document.createElement('span');
+      itemLabel.textContent = item.label;
+      itemLabel.style.cursor = 'pointer';
+      
+      topLevelItem.appendChild(itemLabel);
+      topLevelItem.dataset.type = item.type;
+      
+      topLevelItem.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('controller-item', item.id);
         e.target.classList.add('dragging');
       });
-     
-      childEl.addEventListener('dragend', e => {
+      
+      topLevelItem.addEventListener('dragend', e => {
         e.target.classList.remove('dragging');
       });
-     
-      childEl.addEventListener('click', () => {
-        highlightFormElement(child.id, child.type, child.label);
+      
+      topLevelItem.addEventListener('click', () => {
+        highlightFormElement(item.id, item.type, item.label);
       });
-     
-      fieldsetChildrenContainer.appendChild(childEl);
-    });
-   
-    const toggleChildren = () => {
-      const isHidden = fieldsetChildrenContainer.style.display === 'none';
-      fieldsetChildrenContainer.style.display = isHidden ? 'block' : 'none';
-      toggleIcon.textContent = isHidden ? '▼' : '▶';
-    };
-   
-    fieldsetHeader.addEventListener('click', (e) => {
-      if (!e.target.classList.contains('sidebar-child-item')) {
-        toggleChildren();
-      }
-    });
-   
-    fieldsetHeader.addEventListener('dragstart', (e) => {
-      e.dataTransfer.setData('controller-fieldset', fieldset.id);
-      e.target.classList.add('dragging-fieldset');
-    });
-   
-    fieldsetHeader.addEventListener('dragend', (e) => {
-      e.target.classList.remove('dragging-fieldset');
-    });
-   
-    fieldsetContainer.appendChild(fieldsetHeader);
-    fieldsetContainer.appendChild(fieldsetChildrenContainer);
-    childrenContainer.appendChild(fieldsetContainer);
+      
+      childrenContainer.appendChild(topLevelItem);
+    }
   });
- 
+  
   setupControllerDragDrop(childrenContainer);
 }
 
 function highlightFormElement(id, type, label) {
+  // First check top-level items
+  const topLevelItems = main.querySelectorAll(':scope > .form-block:not(.fieldset-block)');
+  for (const item of topLevelItems) {
+    if (item.__data.name === id || 
+        (item.__data.type === type && item.__data.label === label)) {
+      item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      item.classList.add('highlight');
+      setTimeout(() => item.classList.remove('highlight'), 2000);
+      return;
+    }
+  }
+  
+  // Then check items inside fieldsets
   const fieldsets = main.querySelectorAll('.fieldset-block');
-  let found = false;
- 
-  fieldsets.forEach(fieldset => {
+  for (const fieldset of fieldsets) {
     const nestedContainer = fieldset.querySelector('.fieldset-children');
     if (nestedContainer) {
       const items = nestedContainer.querySelectorAll('.form-block');
-      items.forEach(item => {
+      for (const item of items) {
         if (item.__data.name === id ||
             (item.__data.type === type && item.__data.label === label)) {
           item.scrollIntoView({ behavior: 'smooth', block: 'center' });
           item.classList.add('highlight');
           setTimeout(() => item.classList.remove('highlight'), 2000);
-          found = true;
+          return;
         }
-      });
+      }
     }
-  });
- 
-  if (!found) {
-    alert('Corresponding form element not found!');
   }
+  
+  alert('Corresponding form element not found!');
 }
 
 function setupControllerDragDrop(container) {
@@ -473,7 +522,9 @@ function setupControllerDragDrop(container) {
     }
 
     const isFieldset = draggedItem.classList.contains('dragging-fieldset');
-    const selector = isFieldset ? '.controller-fieldset-container' : '.sidebar-child-item';
+    const isTopLevel = draggedItem.classList.contains('controller-top-level-item');
+    const selector = isFieldset ? '.controller-fieldset-container' : 
+                     isTopLevel ? '.controller-top-level-item' : '.sidebar-child-item';
     
     const afterElement = getDragAfterElement(container, e.clientY, selector);
     
@@ -504,6 +555,7 @@ function setupControllerDragDrop(container) {
     const fieldsetId = e.dataTransfer.getData('controller-fieldset');
     
     if (fieldsetId) {
+      // Handle fieldset reordering
       const draggable = document.querySelector('.dragging-fieldset');
       if (!draggable) return;
       
@@ -512,14 +564,12 @@ function setupControllerDragDrop(container) {
       
       if (fieldsetContainer && fieldsetContainer.parentNode === container) {
         if (afterElement && afterElement.parentNode === container && afterElement !== fieldsetContainer) {
-          
           const temp = document.createElement('div');
           container.insertBefore(temp, afterElement);
           container.insertBefore(afterElement, fieldsetContainer);
           container.insertBefore(fieldsetContainer, temp);
           container.removeChild(temp);
         } else if (!afterElement && fieldsetContainer !== container.lastChild) {
-         
           container.appendChild(fieldsetContainer);
         }
         
@@ -537,6 +587,21 @@ function setupControllerDragDrop(container) {
         mainFieldsets.forEach(fieldset => {
           main.appendChild(fieldset);
         });
+        
+        // Also reorder top-level items
+        const topLevelItems = Array.from(container.querySelectorAll('.controller-top-level-item'));
+        const topLevelOrder = topLevelItems.map(el => el.dataset.id);
+        
+        const mainTopLevelItems = Array.from(main.querySelectorAll(':scope > .form-block:not(.fieldset-block)'));
+        mainTopLevelItems.sort((a, b) => {
+          const aIndex = topLevelOrder.indexOf(a.__data.name);
+          const bIndex = topLevelOrder.indexOf(b.__data.name);
+          return aIndex - bIndex;
+        });
+        
+        mainTopLevelItems.forEach(item => {
+          main.appendChild(item);
+        });
       }
       return;
     }
@@ -546,7 +611,9 @@ function setupControllerDragDrop(container) {
     const draggable = document.querySelector('.dragging');
     if (!draggable) return;
     
-    const afterElement = getDragAfterElement(container, e.clientY, '.sidebar-child-item');
+    const isTopLevel = draggable.classList.contains('controller-top-level-item');
+    const selector = isTopLevel ? '.controller-top-level-item' : '.sidebar-child-item';
+    const afterElement = getDragAfterElement(container, e.clientY, selector);
     const parentContainer = draggable.parentNode;
     
     if (draggable.parentNode === parentContainer && afterElement && afterElement.parentNode === parentContainer) {
@@ -556,28 +623,45 @@ function setupControllerDragDrop(container) {
       parentContainer.insertBefore(draggable, temp);
       parentContainer.removeChild(temp);
 
-      
-      const childItems = Array.from(parentContainer.querySelectorAll('.sidebar-child-item'));
-      const newOrder = childItems.map(el => el.dataset.id);
+      if (isTopLevel) {
+        // Handle top-level items reordering
+        const topLevelItems = Array.from(container.querySelectorAll('.controller-top-level-item'));
+        const newOrder = topLevelItems.map(el => el.dataset.id);
+        
+        const mainTopLevelItems = Array.from(main.querySelectorAll(':scope > .form-block:not(.fieldset-block)'));
+        mainTopLevelItems.sort((a, b) => {
+          const aIndex = newOrder.indexOf(a.__data.name);
+          const bIndex = newOrder.indexOf(b.__data.name);
+          return aIndex - bIndex;
+        });
+        
+        mainTopLevelItems.forEach(item => {
+          main.appendChild(item);
+        });
+      } else {
+        // Handle items inside fieldsets
+        const childItems = Array.from(parentContainer.querySelectorAll('.sidebar-child-item'));
+        const newOrder = childItems.map(el => el.dataset.id);
 
-      const fieldsets = main.querySelectorAll('.fieldset-block');
-      fieldsets.forEach(fieldset => {
-        const nestedContainer = fieldset.querySelector('.fieldset-children');
-        if (nestedContainer) {
-          const items = Array.from(nestedContainer.querySelectorAll('.form-block'));
-          
-          items.sort((a, b) => {
-            const aIndex = newOrder.indexOf(a.__data.name);
-            const bIndex = newOrder.indexOf(b.__data.name);
-            return aIndex - bIndex;
-          });
+        const fieldsets = main.querySelectorAll('.fieldset-block');
+        fieldsets.forEach(fieldset => {
+          const nestedContainer = fieldset.querySelector('.fieldset-children');
+          if (nestedContainer) {
+            const items = Array.from(nestedContainer.querySelectorAll('.form-block'));
+            
+            items.sort((a, b) => {
+              const aIndex = newOrder.indexOf(a.__data.name);
+              const bIndex = newOrder.indexOf(b.__data.name);
+              return aIndex - bIndex;
+            });
 
-          nestedContainer.innerHTML = '';
-          items.forEach(item => {
-            nestedContainer.appendChild(item);
-          });
-        }
-      });
+            nestedContainer.innerHTML = '';
+            items.forEach(item => {
+              nestedContainer.appendChild(item);
+            });
+          }
+        });
+      }
     }
   });
 }
@@ -945,7 +1029,6 @@ function pointerUpHandler(e) {
   window.removeEventListener('pointerup', pointerUpHandler);
   window.removeEventListener('pointercancel', pointerUpHandler);
 }
-
 
 document.addEventListener('DOMContentLoaded', () => {
   if (myControllerItem) {
